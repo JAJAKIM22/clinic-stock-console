@@ -166,7 +166,7 @@ this — shadcn/Tailwind defaults used as-is.
 
 ## Section 3 — Deployment & CI/CD
 
-- **Deployed app:** _fill in your Vercel production URL here once deployed_
+- **Deployed app:** https://clinic-stock-console-blue.vercel.app/
 - **Branch that triggers deployment:** `main`
 - **CI (GitHub Actions, `.github/workflows/ci.yml`):** runs on every pull
   request targeting `main`, and on every push to `main`. Two jobs:
