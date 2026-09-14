@@ -7,6 +7,10 @@ assessment.
 
 ## Running locally
 
+Requires Node.js 22+ (see `.nvmrc`) — older Node versions can hit a real
+`jsdom`/`undici` incompatibility when running the test suite (see CI notes
+below).
+
 ```bash
 npm install
 npm run dev
@@ -77,7 +81,7 @@ it opens a modal with the signed-in user's details (fetched live from
   any URL param produces a new query key, which is what protects against
   stale results overwriting fresh ones on a slow connection.
 - **Local UI state** — the raw (non-debounced) search input value, the
-  stock-correction form's input value, mutation-in-flight flags.
+  stock-correction form's input value.
 
 ### 3. Fetch, cache, invalidate
 
@@ -108,13 +112,12 @@ this — shadcn/Tailwind defaults used as-is.
   page's heading on navigation so keyboard users aren't stranded or reset to
   the top of the document.
 - `aria-label`s on the search box and unlabeled filter controls.
-- Verified via a keyboard-only pass through the app and a 360px viewport
-  check.
+- Verified via a keyboard-only pass through the app and a 360px viewport.
 
 ### Decision log
 
 1. **Server-side debounced search over client-side fuzzy search.**
-   Considered a fuzzy-search library (client-side, instant, no network lag)
+   Considered a fuzzy-search library like FuseJs (client-side, instant, no network lag)
    but rejected it — the list is paginated (10/page out of 194 total), so a
    client-side fuzzy search would only search whatever's already loaded, not
    the real catalogue. Server-side search via `GET /products/search?q=`,
@@ -143,7 +146,7 @@ this — shadcn/Tailwind defaults used as-is.
    response, since that response is the only place the "truth" of the
    update exists for the rest of the session. Noting this as a reversed
    decision, not a clean first guess — the original reasoning wasn't wrong,
-   it just didn't yet know about this constraint.
+   I just didn't yet know about this constraint.
 
 ### API limitations (DummyJSON)
 
@@ -171,7 +174,11 @@ this — shadcn/Tailwind defaults used as-is.
 - **CI (GitHub Actions, `.github/workflows/ci.yml`):** runs on every pull
   request targeting `main`, and on every push to `main`. Two jobs:
   - `quality` — installs deps, then runs `format:check`, `lint`, and `test`.
-    Any failure fails the job.
+    Any failure fails the job. Pinned to Node 22 — the test suite (via
+    `jsdom`'s bundled `undici`) requires a Node internal API
+    (`markAsUncloneable`) not present in older Node 20 builds; this was
+    caught when CI failed with tests passing locally, since local Node was
+    newer than the CI runner's default.
   - `commitlint` — runs only on pull requests, checks every commit in the
     PR against Conventional Commits via `commitlint-github-action`.
     Both jobs are required status checks — set as required in the GitHub
@@ -233,8 +240,7 @@ the query cache directly from the mutation's response.
 how you caught it.**
 
 The original invalidate-and-refetch decision for the stock correction
-mutation — AI-proposed reasoning that seemed sound at the time (simpler to
-reason about, small refetch delay as the only cost), but was actually wrong
+mutation — AI-proposed reasoning that seemed sound at the time (small refetch delay as the only cost), but was actually wrong
 given a constraint neither of us knew yet: DummyJSON doesn't persist
 writes. It wasn't caught by lint or tests — it was caught by me actually
 testing the feature against the real API and reporting that the stock
