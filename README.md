@@ -203,6 +203,9 @@ this — shadcn/Tailwind defaults used as-is.
 
 ## Section 4 — AI Reflection
 
+**Time spent:** ~10 hours total — roughly 4 hours Friday, 4 hours Saturday,
+and 2 hours Sunday on deployment/CI setup.
+
 **1. What did you use AI for across the four sections?**
 
 - Section 1 (Design): tidying up my README write-up.
